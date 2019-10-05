@@ -1,1 +1,1 @@
-# dingo-stories
+# Dingo Stories
