@@ -17,7 +17,8 @@
   },
   "scripts": {
     "build": "webpack",
-    "start": "node ./index.js",
+    "serve": "node ./index.js",
+    "start": "yarn lint && yarn build && yarn serve",
     "lint": "eslint ./src/**/*.js"
   }
 }
