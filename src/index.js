@@ -1,4 +1,4 @@
-const StateMachine = require( 'javascript-state-machine' );
+import * as StateMachine from 'javascript-state-machine';
 
 const fsm = new StateMachine({
   init: 'solid',
