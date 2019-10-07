@@ -59,6 +59,3 @@ typings/
 
 # next.js build output
 .next
-
-# Generated index.js file
-/state_machine.js
