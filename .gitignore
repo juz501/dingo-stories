@@ -61,4 +61,4 @@ typings/
 .next
 
 # Generated index.js file
-/index.js
+/state_machine.js
