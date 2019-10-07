@@ -86,7 +86,8 @@ const fsm = new StateMachine({
     },
     failure: function(msg, transition_to) {   
       let response = {
-        'action': 'can\'t do transition to:' + transition_to,
+        'action': 'no action',
+        'message': 'can\'t do transition to: ' + transition_to,
         'state': this.state
       }
       let response_string = JSON.stringify(response);
@@ -130,14 +131,14 @@ async function handle(msg){
           if ( fsm.can('condense')) {
             await fsm.condense(msg);
           } else {
-            await fsm.condense(msg, data.params.action);
+            await fsm.failure(msg, data.params.action);
           }
       break;
       case 'vaporize':
           if ( fsm.can('vaporize')) {
             await fsm.vaporize(msg);
           } else {
-            await fsm.vaporize(msg, data.params.action);
+            await fsm.failure(msg, data.params.action);
           }
       break;
       default:
