@@ -1,0 +1,14 @@
+html
+    head
+        title= title
+        link(rel="stylesheet", href="/css/style.min.css")
+    body
+        h1= message
+        button(type='button' class='btn' value='Melt' onClick='melt()') Melt
+        button(type='button' class='btn' value='Freeze' onClick='freeze()') Freeze
+        button(type='button' class='btn' value='Vaporize' onClick='vaporize()') Vaporize
+        button(type='button' class='btn' value='Condense' onClick='condense()') Condense
+        script(src='/js/buttons.min.js')
+        div(id='state')
+        div(id='error')
+        

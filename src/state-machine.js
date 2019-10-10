@@ -87,7 +87,7 @@ const fsm = new StateMachine({
     failure: function(msg, transition_to) {   
       let response = {
         'action': 'no action',
-        'message': 'can\'t do transition to: ' + transition_to,
+        'error': 'can\'t do transition to: ' + transition_to,
         'state': this.state
       }
       let response_string = JSON.stringify(response);
@@ -97,7 +97,7 @@ const fsm = new StateMachine({
     status: function(msg) {
       let response = {
         'state': this.state,
-        'instructions': 'Please use query string to change state by specifying an action i.e. ?action=melt, ?action=vaporize, ?action=condense, ?action=freeze',
+        'message': 'Please use query string to change state by specifying an action i.e. ?action=melt, ?action=vaporize, ?action=condense, ?action=freeze',
       }
       let response_string = JSON.stringify(response);
       rabbit.sendToQueue(msg.properties.replyTo, Buffer.from(response_string) );
