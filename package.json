@@ -42,7 +42,7 @@
     "rabbit": "docker-compose up --build --remove-orphans --force-recreate",
     "state": "sleep 10 && node ./src/state-machine.js",
     "serve": "sleep 12 && node ./index.js",
-    "start": "yarn lint && npm-run-all -p -r rabbit state serve",
+    "start": "yarn lint && yarn build && npm-run-all -p -r rabbit state serve",
     "lint": "eslint ./src/**/*.js ./index.js"
   }
 }

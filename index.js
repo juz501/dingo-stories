@@ -93,7 +93,7 @@ app.get('*', async (req, res) => {
   res.render('index', { title: 'Dingo Stories', message: 'Dingo Stories Game'});
 });
 
-app.listen(8080, (e)=> {
+app.listen(8080, (e) => {
   if(e) {
     throw new Error('Internal Server Error');
   }
