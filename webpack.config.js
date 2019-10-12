@@ -1,4 +1,5 @@
 const path = require('path');
+require('babel-polyfill');
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const { CleanWebpackPlugin } = require( 'clean-webpack-plugin' );
 const CleanObsoleteChunks = require( 'webpack-clean-obsolete-chunks' );
@@ -11,7 +12,7 @@ module.exports = {
     mode: 'production',
     devtool: 'source-map',
     entry: {
-        'buttons': './src/frontend/buttons.js',
+        'buttons': ['babel-polyfill', './src/frontend/buttons.js'],
         'style':  './src/sass/style.scss'
     },
     output: {

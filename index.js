@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const amqp = require('amqplib');
+const axios = require('axios');
 
 let rabbit;
 let rabbit_connection;
@@ -86,14 +87,20 @@ app.get( '/api*', async ( req, res ) => {
 
   console.log(" [x] Sent ");
 });
-
-
   
 app.get('*', async (req, res) => {
-  res.render('index', { title: 'Dingo Stories', message: 'Dingo Stories Game'});
+  const response = await axios.get('http://localhost:8081/api/');
+  const buttons = response.data.allMoves.filter(function(value){
+    return value !== 'init';
+  });
+  res.render('index', {
+    title: 'Dingo Stories',
+    message: 'Dingo Stories Game',
+    buttons: buttons
+  });
 });
 
-app.listen(8080, (e) => {
+app.listen(8081, (e) => {
   if(e) {
     throw new Error('Internal Server Error');
   }

@@ -1,14 +1,16 @@
 html
-    head
-        title= title
-        link(rel="stylesheet", href="/css/style.min.css")
-    body
-        h1= message
-        button(type='button' class='btn' value='Melt' onClick='melt()') Melt
-        button(type='button' class='btn' value='Freeze' onClick='freeze()') Freeze
-        button(type='button' class='btn' value='Vaporize' onClick='vaporize()') Vaporize
-        button(type='button' class='btn' value='Condense' onClick='condense()') Condense
-        script(src='/js/buttons.min.js')
-        div(id='state')
+  head
+    title= title
+    link(rel="stylesheet", href="/css/style.min.css")
+  body
+    .content
+      h1= message
+      #moves.moves
+        h2 Moves
+        each val, index in buttons        
+          button(id=val type='button' onClick='action(\'' + val +'\')')= val
+        img(id='loading' class='hide' src='/img/loading.gif' width='20')
         div(id='error')
-        
+      br
+      img(id='stateImage' width='300')
+      script(src='/js/buttons.min.js')

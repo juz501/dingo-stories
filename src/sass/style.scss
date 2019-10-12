@@ -1,3 +1,40 @@
 h1 {
     color: green;
 }
+
+h2 {
+  margin: 5px 10px;
+}
+
+.content {
+  max-width: 1024px;
+  margin: 50px auto;
+}
+
+#loading {
+  display: inline-block;
+  float: right;
+  &.hide {
+    display: none;
+  }
+}
+
+.moves {
+  border: 1px solid black;
+  padding: 10px;
+  margin-bottom: 20px;
+  min-width: 185px;
+  display: inline-block;
+
+  button {
+    margin: 0 10px;
+    min-width: 50px;
+    min-height: 80px;
+    text-transform: capitalize;
+    display: none;
+    &.shown {
+      display: inline-block;
+    }
+  }
+}
+

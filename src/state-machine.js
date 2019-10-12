@@ -40,110 +40,80 @@ async function connect_to_queue() {
 }
 
 const fsm = new StateMachine({
-  init: 'solid',
+  init: 'normal',
   transitions: [
-    { name: 'melt',     from: 'solid',  to: 'liquid' },
-    { name: 'freeze',   from: 'liquid', to: 'solid'  },
-    { name: 'vaporize', from: 'liquid', to: 'gas'    },
-    { name: 'condense', from: 'gas',    to: 'liquid' }
+    { name: 'poison',         from: 'normal',   to: 'poisoned' },
+    { name: 'polymorph',      from: 'normal',   to: 'animal' },
+    { name: 'polymorph',      from: 'poisoned', to: 'animal' },
+    { name: 'heal',           from: 'animal',   to: 'normal' },
+    { name: 'heal',           from: 'poisoned', to: 'normal' }
   ],
   methods: {
-    onMelt: function(lifecycle, msg) {   
-      let response = {
-        'action': lifecycle.transition,
-        'state': this.state
-      }
-      let response_string = JSON.stringify(response);
-      rabbit.sendToQueue(msg.properties.replyTo, Buffer.from(response_string) );
-      rabbit.ack(msg);
+    onPoison: function(lifecycle, msg) {
+      this.respond(lifecycle.action, msg);
     },
-    onFreeze: function(lifecycle, msg) {
-      let response = {
-        'action': lifecycle.transition,
-        'state': this.state
-      }
-      let response_string = JSON.stringify(response);
-      rabbit.sendToQueue(msg.properties.replyTo, Buffer.from(response_string) );
-      rabbit.ack(msg);
+    onPolymorph: function(lifecycle, msg) {
+      this.respond(lifecycle.action, msg);
     },
-    onVaporize: function(lifecycle, msg) {
-      let response = {
-        'action': lifecycle.transition,
-        'state': this.state   
-      }
-      let response_string = JSON.stringify(response);
-      rabbit.sendToQueue(msg.properties.replyTo, Buffer.from(response_string) );
-      rabbit.ack(msg);
+    onHeal: function(lifecycle, msg) {
+      this.respond(lifecycle.action, msg);
     },
-    onCondense: function(lifecycle, msg) {
+    respond: function(action, msg) {
       let response = {
-        'action': lifecycle.transition,
-        'state': this.state
+        'action': action,
+        'state': this.state,
+        'statuses': this.allStates(),
+        'moves': this.transitions(),
+        'allMoves': this.allTransitions()
       }
-      let response_string = JSON.stringify(response);
-      rabbit.sendToQueue(msg.properties.replyTo, Buffer.from(response_string) );
-      rabbit.ack(msg);
+      if (rabbit) {
+        let response_string = JSON.stringify(response);
+        rabbit.sendToQueue(msg.properties.replyTo, Buffer.from(response_string) );
+        rabbit.ack(msg);
+      }
     },
-    failure: function(msg, transition_to) {   
+    failure: function(transition_to, msg) {   
       let response = {
         'action': 'no action',
-        'error': 'can\'t do transition to: ' + transition_to,
-        'state': this.state
+        'error': transition_to + ' failed!!',
+        'state': this.state,
+        'statuses': this.allStates(),
+        'moves': this.transitions(),
+        'allMoves': this.allTransitions()
       }
-      let response_string = JSON.stringify(response);
-      rabbit.sendToQueue(msg.properties.replyTo, Buffer.from(response_string) );
-      rabbit.ack(msg);
+      if (rabbit) {
+        let response_string = JSON.stringify(response);
+        rabbit.sendToQueue(msg.properties.replyTo, Buffer.from(response_string) );
+        rabbit.ack(msg);
+      }
     },
     status: function(msg) {
       let response = {
         'state': this.state,
-        'message': 'Please use query string to change state by specifying an action i.e. ?action=melt, ?action=vaporize, ?action=condense, ?action=freeze',
+        'statuses': this.allStates(),
+        'moves': this.transitions(),
+        'allMoves': this.allTransitions()
       }
-      let response_string = JSON.stringify(response);
-      rabbit.sendToQueue(msg.properties.replyTo, Buffer.from(response_string) );
-      rabbit.ack(msg);
+      if ( rabbit ) {
+        let response_string = JSON.stringify(response);
+        rabbit.sendToQueue(msg.properties.replyTo, Buffer.from(response_string) );
+        rabbit.ack(msg);
+      }
     }
   }
 });
 
 async function handle(msg){
   let data = JSON.parse(msg.content.toString());
-  console.log(" [x] Received %s", msg.content.toString());
-  
-  // Do something
+  console.log(" [x] Received %s", JSON.stringify(data.params));
+
   try {
-    switch( data.params.action ) {
-      case 'melt':
-          if ( fsm.can('melt')) {
-            await fsm.melt(msg);
-          } else {
-            await fsm.failure(msg, data.params.action);
-          }
-      break;
-      case 'freeze':
-          if ( fsm.can('freeze')) {
-            await fsm.freeze(msg);
-          } else {
-            await fsm.failure(msg, data.params.action);
-          }
-      break;
-      case 'condense':
-          if ( fsm.can('condense')) {
-            await fsm.condense(msg);
-          } else {
-            await fsm.failure(msg, data.params.action);
-          }
-      break;
-      case 'vaporize':
-          if ( fsm.can('vaporize')) {
-            await fsm.vaporize(msg);
-          } else {
-            await fsm.failure(msg, data.params.action);
-          }
-      break;
-      default:
-        await fsm.status(msg);
-      break;
+    if ( ! data.params.action ) {
+      await fsm.status(msg);
+    } else if (fsm.can(data.params.action)) {
+      await fsm[data.params.action](msg);
+    } else {
+      await fsm.failure(data.params.action, msg);
     }
   } catch (e) {
     console.log(e.message);
